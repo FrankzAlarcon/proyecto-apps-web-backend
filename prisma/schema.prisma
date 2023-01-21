@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  phone        String
+  appointments Appointment[]
+  Auth         Auth?
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Auth {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  token     String?
+  role      Role     @default(CUSTOMER)
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("auth")
+}
+
+model Service {
+  id                 Int                   @id @default(autoincrement())
+  name               String
+  price              Float
+  AppointmetServices AppointmentServices[]
+  createdAt          DateTime              @default(now()) @map("created_at")
+
+  @@map("services")
+}
+
+model Appointment {
+  id                 Int                   @id @default(autoincrement())
+  hour               DateTime              @db.Date
+  date               DateTime              @db.Time(0)
+  isCompleted        Boolean               @default(false) @map("is_completed")
+  user               User                  @relation(fields: [userId], references: [id])
+  userId             Int                   @map("user_id")
+  AppointmetServices AppointmentServices[]
+  createdAt          DateTime              @default(now()) @map("created_at")
+
+  @@map("appointments")
+}
+
+model AppointmentServices {
+  id            Int         @id @default(autoincrement())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId Int         @map("appointment_id")
+  service       Service     @relation(fields: [serviceId], references: [id])
+  serviceId     Int         @map("service_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("appointment_services")
+}

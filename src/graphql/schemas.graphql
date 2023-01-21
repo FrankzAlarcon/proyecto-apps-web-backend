@@ -1,0 +1,58 @@
+type Query {
+  # Users
+  user(id: ID!): User
+  allUsers: [User!]!
+  # // Services
+  # service: Service
+  # allServices: [Service!]!
+
+  # //Appointments
+  # appointment: Appointment
+  # allAppointments: [Appointment!]!
+}
+
+type Mutation {
+  # Users
+  addUser(data: CreateUserDto!): User!
+  updateUser(id: ID!,changes: UpdateUserDto!): User!
+  deleteUser(id: ID!): ID!
+}
+
+type User {
+  id: ID!
+  name: String!
+  phone: String!
+}
+
+type Auth {
+  id: ID!
+  email: String!
+  password: String!
+  token: String
+  role: String!
+  userId: ID!
+}
+
+type Appointment {
+  id: ID!
+  time: String!
+  date: String!
+  user: User!
+  services: [Service!]!
+}
+
+type Service {
+  id: ID!
+  name: String!
+  price: Float
+}
+
+input CreateUserDto {
+  name: String!
+  phone: String!
+}
+
+input UpdateUserDto {
+  name: String
+  phone: String
+}
