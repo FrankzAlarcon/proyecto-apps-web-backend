@@ -1,14 +1,24 @@
+enum Role {
+  CUSTOMER,
+  ADMIN
+}
+
 type Query {
   # Users
   user(id: ID!): User
   allUsers: [User!]!
-  # // Services
-  # service: Service
-  # allServices: [Service!]!
 
-  # //Appointments
-  # appointment: Appointment
-  # allAppointments: [Appointment!]!
+  # Auth
+  auth(id: ID!): Auth
+  allAuths: [Auth!]!
+
+  # Services
+  service(id: ID!): Service
+  allServices: [Service!]!
+
+  # Appointments
+  appointment(id: ID!): Appointment
+  allAppointments: [Appointment!]!
 }
 
 type Mutation {
@@ -16,6 +26,17 @@ type Mutation {
   addUser(data: CreateUserDto!): User!
   updateUser(id: ID!,changes: UpdateUserDto!): User!
   deleteUser(id: ID!): ID!
+
+  #Auth
+  addAuth(data: CreateAuthDto!): Auth!
+
+  # Services
+  addService(data: CreateServiceDto!): Service!
+  updateService(id: ID!, changes: UpdateServiceDto!): Service!
+  deleteService(id: ID!): ID!
+
+  # Appointments
+  addAppointment(data: CreateAppointmentDto!): Appointment!
 }
 
 type User {
@@ -26,11 +47,10 @@ type User {
 
 type Auth {
   id: ID!
-  email: String!
-  password: String!
+  email: String!  
   token: String
   role: String!
-  userId: ID!
+  user: User!
 }
 
 type Appointment {
@@ -44,7 +64,7 @@ type Appointment {
 type Service {
   id: ID!
   name: String!
-  price: Float
+  price: Float!
 }
 
 input CreateUserDto {
@@ -55,4 +75,29 @@ input CreateUserDto {
 input UpdateUserDto {
   name: String
   phone: String
+}
+
+input CreateAuthDto {  
+  name: String!
+  phone: String!
+  email: String!
+  password: String!
+  role: Role!  
+}
+
+input CreateServiceDto {
+  name: String!
+  price: Float!
+}
+
+input UpdateServiceDto {
+  name: String
+  price: Float
+}
+
+input CreateAppointmentDto {
+  hour: String!
+  date: String!
+  userId: Int!
+  services: [Int!]!
 }

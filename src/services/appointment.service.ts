@@ -14,7 +14,14 @@ export class AppointmentService {
   }
 
   async getAll(): Promise<Appointment[]> {
-    const appointments = await this.prisma.appointment.findMany()
+    const appointments = await this.prisma.appointment.findMany({
+      include: {
+        AppointmetServices: {
+          include: { service: true }
+        },
+        user: true
+      }
+    })
     return appointments
   }
 

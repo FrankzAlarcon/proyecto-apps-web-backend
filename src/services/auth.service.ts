@@ -15,12 +15,12 @@ export class AuthService {
   }
 
   async getAll(): Promise<Auth[]> {
-    const auths = await this.prisma.auth.findMany()
+    const auths = await this.prisma.auth.findMany({ include: { user: true } })
     return auths
   }
 
   async getOne(id: number): Promise<Auth> {
-    const auth = await this.prisma.auth.findFirst({ where: { id } })
+    const auth = await this.prisma.auth.findFirst({ where: { id }, include: { user: true } })
     if (!auth) {
       throw boom.notFound('Auth not found')
     }
