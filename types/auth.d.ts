@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 type Role = "CUSTOMER" | "ADMIN"
 
 interface CompleteAuth {
@@ -12,3 +14,19 @@ interface CompleteAuth {
 export type CreateAuthDto = Pick<CompleteAuth, 'email' | 'password' | 'role'>
 
 export type CreateCompleteAuthDto = Omit<CompleteAuth, 'id'>
+
+export interface PayloadToken {
+  sub: number
+  role: Role
+}
+
+export interface CompleteUser {
+  id: number;
+  email: string;
+  token: string | null;
+  role: Role;
+  userId: number;
+  user: User;
+}
+
+export interface Login { email: string, password: string }

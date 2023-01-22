@@ -1,9 +1,12 @@
+import { CompleteUser, PayloadToken } from './../../types/auth.d';
 import boom from '@hapi/boom';
 import { Auth, PrismaClient } from "@prisma/client"
 import { CreateAuthDto, CreateCompleteAuthDto } from '../../types/auth';
 import { CreateUserDto } from '../../types/user';
 import { UserService } from './user.service';
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { config } from '../config';
 
 export class AuthService {
   private prisma
@@ -25,6 +28,40 @@ export class AuthService {
       throw boom.notFound('Auth not found')
     }
     return auth
+  }
+
+  // async getByEmail(email: string) {
+  //   const authUser = await this.prisma.auth.findFirst({ where: { email }, include: { user: true } })
+  //   if (!authUser) {
+  //     throw boom.notFound('Auth user not found')
+  //   }
+  //   return authUser
+  // }
+
+  async login(email: string, password: string) {
+    const authUser = await this.prisma.auth.findFirst({ where: { email }, include: { user: true } })
+    if (!authUser) {
+      throw boom.notFound('Auth user not found')
+    }
+    const isMatch = await bcrypt.compare(password, authUser.password)
+    if (!isMatch) {
+      throw boom.unauthorized('Invalid Credentials')
+    }
+    const { password: pass, ...restOfData } = authUser
+    return restOfData
+  }
+
+  async signToken(user: CompleteUser) {
+    const payloadToken: PayloadToken = {
+      role: user.role,
+      sub: user.id
+    }
+    const accessToken = jwt.sign(payloadToken, config.jwtSecret as string)
+
+    return {
+      access_token: accessToken,
+      auth: user
+    }
   }
 
   async create(data: CreateCompleteAuthDto): Promise<Auth> {

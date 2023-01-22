@@ -3,7 +3,8 @@ import express from 'express'
 
 export const createApp = async () => {
   const app = express()
-  app.use(express.json())
+
+  require('./src/auth')
 
   await useGraphql(app)
 

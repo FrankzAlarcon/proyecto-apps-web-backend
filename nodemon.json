@@ -4,6 +4,8 @@
     "node_modules/**/node_modules"
   ],
   "watch": [
+    "app.ts",
+    "index.ts",
     "src/**/*.{js,ts}",
     "src/**/*.gql",
     "src/**/*.graphql"

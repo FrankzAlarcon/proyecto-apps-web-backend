@@ -1,6 +1,8 @@
-import { CreateCompleteAuthDto } from './../../../types/auth.d';
+import { CompleteUser, CreateCompleteAuthDto, Login } from './../../../types/auth.d';
 import { ID } from "../../../types";
 import { AuthService } from "../../services/auth.service";
+import { PassportContext } from 'graphql-passport';
+import { Request } from 'express';
 
 const authService = new AuthService()
 
@@ -17,4 +19,11 @@ export const getAuth = async (_: unknown, { id }: ID) => {
 export const createAuth = async (_: unknown, { data }: { data: CreateCompleteAuthDto }) => {
   const auth = await authService.create(data)
   return auth
+}
+
+export const login = async (_: unknown, { email, password }: Login, context: PassportContext<CompleteUser, Login, Request>) => {
+  const { user } = await context.authenticate('graphql-local', { email, password });
+  // await context.login(user)
+  console.log(user)
+  return authService.signToken(user as CompleteUser)
 }
