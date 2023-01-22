@@ -56,6 +56,7 @@ export class AuthService {
       role: user.role,
       sub: user.id
     }
+
     const accessToken = jwt.sign(payloadToken, config.jwtSecret as string)
 
     return {

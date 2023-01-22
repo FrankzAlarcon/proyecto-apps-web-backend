@@ -24,6 +24,5 @@ export const createAuth = async (_: unknown, { data }: { data: CreateCompleteAut
 export const login = async (_: unknown, { email, password }: Login, context: PassportContext<CompleteUser, Login, Request>) => {
   const { user } = await context.authenticate('graphql-local', { email, password });
   // await context.login(user)
-  console.log(user)
   return authService.signToken(user as CompleteUser)
 }
