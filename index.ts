@@ -1,4 +1,4 @@
-import { createApp } from "./app"
+import { createApp } from './app'
 
 (async () => {
   const app = await createApp()
@@ -7,5 +7,4 @@ import { createApp } from "./app"
   app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`)
   })
-
-})()
+})().catch(console.log)

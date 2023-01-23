@@ -1,28 +1,28 @@
-import { CompleteUser, PayloadToken } from './../../types/auth.d';
-import boom from '@hapi/boom';
-import { Auth, PrismaClient } from "@prisma/client"
-import { CreateAuthDto, CreateCompleteAuthDto } from '../../types/auth';
-import { CreateUserDto } from '../../types/user';
-import { UserService } from './user.service';
+import { CompleteUser, PayloadToken, SignedToken } from './../../types/auth.d'
+import boom from '@hapi/boom'
+import { Auth, PrismaClient } from '@prisma/client'
+import { CreateAuthDto, CreateCompleteAuthDto } from '../../types/auth'
+import { CreateUserDto } from '../../types/user'
+import { UserService } from './user.service'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { config } from '../config';
+import { config } from '../config'
 
 export class AuthService {
-  private prisma
-  private userService
+  private readonly prisma
+  private readonly userService
 
-  constructor() {
+  constructor () {
     this.prisma = new PrismaClient()
     this.userService = new UserService()
   }
 
-  async getAll(): Promise<Auth[]> {
+  async getAll (): Promise<Auth[]> {
     const auths = await this.prisma.auth.findMany({ include: { user: true } })
     return auths
   }
 
-  async getOne(id: number): Promise<Auth> {
+  async getOne (id: number): Promise<Auth> {
     const auth = await this.prisma.auth.findFirst({ where: { id }, include: { user: true } })
     if (!auth) {
       throw boom.notFound('Auth not found')
@@ -38,7 +38,7 @@ export class AuthService {
   //   return authUser
   // }
 
-  async login(email: string, password: string) {
+  async login (email: string, password: string): Promise<CompleteUser> {
     const authUser = await this.prisma.auth.findFirst({ where: { email }, include: { user: true } })
     if (!authUser) {
       throw boom.notFound('Auth user not found')
@@ -51,7 +51,7 @@ export class AuthService {
     return restOfData
   }
 
-  async signToken(user: CompleteUser) {
+  async signToken (user: CompleteUser): Promise<SignedToken> {
     const payloadToken: PayloadToken = {
       role: user.role,
       sub: user.id
@@ -65,7 +65,7 @@ export class AuthService {
     }
   }
 
-  async create(data: CreateCompleteAuthDto): Promise<Auth> {
+  async create (data: CreateCompleteAuthDto): Promise<Auth> {
     // create user
     const userData: CreateUserDto = {
       name: data.name,
@@ -73,13 +73,13 @@ export class AuthService {
     }
     const user = await this.userService.create(userData)
 
-    //create auth
+    // create auth
     const hashedPassword = await bcrypt.hash(data.password, 10)
 
     const authData: CreateAuthDto = {
       email: data.email,
       password: hashedPassword,
-      role: data.role,
+      role: data.role
     }
 
     const auth = await this.prisma.auth.create({
@@ -92,7 +92,7 @@ export class AuthService {
       }
     })
 
-    //return user
+    // return user
     return auth
   }
 }

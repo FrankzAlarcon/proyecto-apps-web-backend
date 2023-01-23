@@ -1,19 +1,30 @@
-import boom from '@hapi/boom';
-import { Role } from "@prisma/client";
-import { Request } from 'express';
-import { PassportContext } from 'graphql-passport';
-import { PayloadToken } from "../../types/auth";
+import boom from '@hapi/boom'
+import { Role } from '@prisma/client'
+import { ObjectSchema, Schema } from 'joi'
+import { JwtContext } from '../../types'
+import { PayloadToken } from '../../types/auth'
 
-export const checkRoles = (payload: PayloadToken, ...roles: Role[]) => {
+export const schemaValidation = (schema: ObjectSchema | Schema, data: unknown): void => {
+  const { error } = schema.validate(data, { abortEarly: false })
+  if (error) {
+    throw boom.badRequest(error.message)
+  }
+}
+
+export const checkRoles = (payload: PayloadToken, ...roles: Role[]): void => {
   if (!roles.includes(payload.role)) {
     throw boom.unauthorized('This action is prohibited for you')
   }
 }
 
-export const verifyJWT = async (context: PassportContext<PayloadToken, { session: boolean }, Request>) => {
+export const verifyJWT = async (context: JwtContext): Promise<{ payload: PayloadToken }> => {
   const { user } = await context.authenticate('jwt', { session: false })
   if (!user) {
     throw boom.unauthorized('JWT is not valid')
   }
-  return { payload: user }
+  const payload: PayloadToken = {
+    role: user.role,
+    sub: user.sub as any
+  }
+  return { payload }
 }

@@ -1,19 +1,19 @@
-import { CreateJustAppointmentDto } from './../../types/appointment.d';
-import boom from '@hapi/boom';
-import { Appointment, Prisma, PrismaClient } from "@prisma/client"
-import { CreateAppointmentDto } from '../../types/appointment';
-import { BarbershopServicesService } from './barbershop-service.service';
+import { CreateJustAppointmentDto } from './../../types/appointment.d'
+import boom from '@hapi/boom'
+import { Appointment, PrismaClient } from '@prisma/client'
+import { CreateAppointmentDto } from '../../types/appointment'
+import { BarbershopServicesService } from './barbershop-service.service'
 
 export class AppointmentService {
-  private prisma
-  private barbershopService
+  private readonly prisma
+  private readonly barbershopService
 
-  constructor() {
+  constructor () {
     this.prisma = new PrismaClient()
-    this.barbershopService = new BarbershopServicesService
+    this.barbershopService = new BarbershopServicesService()
   }
 
-  async getAll(): Promise<Appointment[]> {
+  async getAll (): Promise<Appointment[]> {
     const appointments = await this.prisma.appointment.findMany({
       include: {
         AppointmetServices: {
@@ -25,9 +25,10 @@ export class AppointmentService {
     return appointments
   }
 
-  async getOne(id: number): Promise<Appointment> {
+  async getOne (id: number): Promise<Appointment> {
     const appointment = await this.prisma.appointment.findFirst({
-      where: { id }, include: {
+      where: { id },
+      include: {
         AppointmetServices: {
           include: { service: true }
         },
@@ -42,7 +43,7 @@ export class AppointmentService {
     return appointment
   }
 
-  async create(data: CreateAppointmentDto): Promise<Appointment> {
+  async create (data: CreateAppointmentDto): Promise<Appointment> {
     // Check that services exist
     const servicesExist = await this.barbershopService.checkIfServicesExist(data.services)
 
@@ -66,5 +67,4 @@ export class AppointmentService {
     const completeAppointment = await this.getOne(appointment.id)
     return completeAppointment
   }
-
 }

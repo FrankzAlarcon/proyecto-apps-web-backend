@@ -1,8 +1,8 @@
 interface CompleteAppointment {
-  id: number;
-  hour: Date;
-  date: Date;
-  userId: number;
+  id: number
+  hour: Date
+  date: Date
+  userId: number
   services: number[]
 }
 

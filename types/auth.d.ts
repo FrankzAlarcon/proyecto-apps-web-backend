@@ -1,14 +1,14 @@
-import { User } from "./user";
+import { User } from './user'
 
-type Role = "CUSTOMER" | "ADMIN"
+type Role = 'CUSTOMER' | 'ADMIN'
 
 interface CompleteAuth {
-  id: number;
+  id: number
   name: string
   phone: string
-  email: string;
-  password: string;
-  role: Role;
+  email: string
+  password: string
+  role: Role
 }
 
 export type CreateAuthDto = Pick<CompleteAuth, 'email' | 'password' | 'role'>
@@ -20,13 +20,18 @@ export interface PayloadToken {
   role: Role
 }
 
+export interface SignedToken {
+  access_token: string
+  auth: CompleteUser
+}
+
 export interface CompleteUser {
-  id: number;
-  email: string;
-  token: string | null;
-  role: Role;
-  userId: number;
-  user: User;
+  id: number
+  email: string
+  token: string | null
+  role: Role
+  userId: number
+  user: User
 }
 
 export interface Login { email: string, password: string }
