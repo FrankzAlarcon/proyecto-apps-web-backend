@@ -215,7 +215,10 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-#Docker Volume for postgresql db
+# Docker Volume for postgresql db
 postgres_data/
+
+# ToDos
+todos.ts
 
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos,linux
