@@ -61,7 +61,7 @@ type AuthResponse {
 
 type Appointment {
   id: ID!
-  time: String!
+  hour: String!
   date: String!
   user: User!
   services: [Service!]!

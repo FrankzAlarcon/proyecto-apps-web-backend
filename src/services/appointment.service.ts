@@ -1,8 +1,9 @@
 import { CreateJustAppointmentDto } from './../../types/appointment.d'
 import boom from '@hapi/boom'
-import { Appointment, PrismaClient } from '@prisma/client'
+import { Appointment, PrismaClient, Service, User } from '@prisma/client'
 import { CreateAppointmentDto } from '../../types/appointment'
 import { BarbershopServicesService } from './barbershop-service.service'
+import moment from 'moment'
 
 export class AppointmentService {
   private readonly prisma
@@ -22,7 +23,23 @@ export class AppointmentService {
         user: true
       }
     })
-    return appointments
+
+    const refactoredAppointments = appointments.map(appointment => {
+      const services = appointment.AppointmetServices.map((appSer) => appSer.service)
+      const refactoredAppointment: Appointment & { user: User, services: Service[] } = {
+        id: appointment.id,
+        date: appointment.date,
+        hour: appointment.hour,
+        userId: appointment.userId,
+        isCompleted: appointment.isCompleted,
+        user: appointment.user,
+        createdAt: appointment.createdAt,
+        services
+      }
+      return refactoredAppointment
+    })
+
+    return refactoredAppointments
   }
 
   async getOne (id: number): Promise<Appointment> {
@@ -40,7 +57,18 @@ export class AppointmentService {
       throw boom.notFound('Appointment not found')
     }
 
-    return appointment
+    const services = appointment.AppointmetServices.map((appSer) => appSer.service)
+    const refactoredAppointment: Appointment & { user: User, services: Service[] } = {
+      id: appointment.id,
+      date: appointment.date,
+      hour: appointment.hour,
+      userId: appointment.userId,
+      isCompleted: appointment.isCompleted,
+      user: appointment.user,
+      createdAt: appointment.createdAt,
+      services
+    }
+    return refactoredAppointment
   }
 
   async create (data: CreateAppointmentDto): Promise<Appointment> {
@@ -53,10 +81,11 @@ export class AppointmentService {
 
     // Create appointment
     const appointmentData: CreateJustAppointmentDto = {
-      date: data.date,
-      hour: data.hour,
+      date: moment(data.date, 'YYYY-mm-DD').utc(true).toDate(),
+      hour: moment(data.hour, 'HH:mm:ss').utc(true).toDate(),
       userId: data.userId
     }
+
     const appointment = await this.prisma.appointment.create({ data: appointmentData })
 
     // create the row for table servicios_appointment
