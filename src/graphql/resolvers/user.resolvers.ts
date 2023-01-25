@@ -1,4 +1,4 @@
-import { checkRoles, schemaValidation, verifyJWT } from './../validator.handler'
+import { checkRequestOwnData, checkRoles, schemaValidation, verifyJWT } from './../validator.handler'
 import { CreateUserDto, UpdateUserDto } from './../../../types/user.d'
 import { ID, JwtContext } from '../../../types'
 import { UserService } from '../../services/user.service'
@@ -11,6 +11,7 @@ const userService = new UserService()
 export const getUser = async (_: unknown, { id }: ID, context: JwtContext): Promise<User> => {
   const { payload } = await verifyJWT(context)
   checkRoles(payload, 'ADMIN')
+  checkRequestOwnData(payload, id)
   schemaValidation(GetById, id)
 
   const user = await userService.getOne(Number(id))
@@ -41,6 +42,7 @@ export const updateUser = async (
 ): Promise<User> => {
   const { payload } = await verifyJWT(context)
   checkRoles(payload, 'ADMIN')
+  checkRequestOwnData(payload, id)
   schemaValidation(JoiUpdateUserDto, changes)
 
   const user = await userService.update(Number(id), changes)
@@ -50,6 +52,7 @@ export const updateUser = async (
 export const removeUser = async (_: unknown, { id }: ID, context: JwtContext): Promise<number> => {
   const { payload } = await verifyJWT(context)
   checkRoles(payload, 'ADMIN')
+  checkRequestOwnData(payload, id)
   schemaValidation(GetById, id)
 
   const userId = await userService.remove(Number(id))

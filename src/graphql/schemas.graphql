@@ -19,6 +19,7 @@ type Query {
   # Appointments
   appointment(id: ID!): Appointment
   allAppointments: [Appointment!]!
+  allAppointmentsByUser(id: ID!): [Appointment]!
 }
 
 type Mutation {

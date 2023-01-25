@@ -1,4 +1,4 @@
-import { createAppointment, getAppointment, getAppointments } from './appointment.resolvers'
+import { createAppointment, getAppointment, getAppointments, getAppointmentsByUser } from './appointment.resolvers'
 import { getAuth, getAuths, createAuth, login } from './auth.resolvers'
 import { createService, removeService, updateService, getService, getServices } from './service.resolvers'
 import { createUser, getUser, getUsers, removeUser, updateUser } from './user.resolvers'
@@ -16,7 +16,8 @@ export const resolvers = {
     allServices: getServices,
     // Appointments
     appointment: getAppointment,
-    allAppointments: getAppointments
+    allAppointments: getAppointments,
+    allAppointmentsByUser: getAppointmentsByUser
   },
   Mutation: {
     // Users

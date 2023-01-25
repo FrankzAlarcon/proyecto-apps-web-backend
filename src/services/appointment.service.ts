@@ -1,4 +1,4 @@
-import { CreateJustAppointmentDto } from './../../types/appointment.d'
+import { AppointmentExtended, CreateJustAppointmentDto, RefactoredAppointment } from './../../types/appointment.d'
 import boom from '@hapi/boom'
 import { Appointment, PrismaClient, Service, User } from '@prisma/client'
 import { CreateAppointmentDto } from '../../types/appointment'
@@ -14,7 +14,7 @@ export class AppointmentService {
     this.barbershopService = new BarbershopServicesService()
   }
 
-  async getAll (): Promise<Appointment[]> {
+  async getAll (): Promise<RefactoredAppointment[]> {
     const appointments = await this.prisma.appointment.findMany({
       include: {
         AppointmetServices: {
@@ -25,24 +25,26 @@ export class AppointmentService {
     })
 
     const refactoredAppointments = appointments.map(appointment => {
-      const services = appointment.AppointmetServices.map((appSer) => appSer.service)
-      const refactoredAppointment: Appointment & { user: User, services: Service[] } = {
-        id: appointment.id,
-        date: appointment.date,
-        hour: appointment.hour,
-        userId: appointment.userId,
-        isCompleted: appointment.isCompleted,
-        user: appointment.user,
-        createdAt: appointment.createdAt,
-        services
-      }
-      return refactoredAppointment
+      return this.refactorAppointmentInfo(appointment)
     })
 
     return refactoredAppointments
   }
 
-  async getOne (id: number): Promise<Appointment> {
+  async getAllByUser (userId: number): Promise<RefactoredAppointment[]> {
+    const appointments = await this.prisma.appointment.findMany({
+      where: { userId },
+      include: {
+        AppointmetServices: { include: { service: true } },
+        user: true
+      }
+    })
+
+    const refactoredAppointments = appointments.map(appointment => this.refactorAppointmentInfo(appointment))
+    return refactoredAppointments
+  }
+
+  async getOne (id: number): Promise<RefactoredAppointment> {
     const appointment = await this.prisma.appointment.findFirst({
       where: { id },
       include: {
@@ -57,17 +59,7 @@ export class AppointmentService {
       throw boom.notFound('Appointment not found')
     }
 
-    const services = appointment.AppointmetServices.map((appSer) => appSer.service)
-    const refactoredAppointment: Appointment & { user: User, services: Service[] } = {
-      id: appointment.id,
-      date: appointment.date,
-      hour: appointment.hour,
-      userId: appointment.userId,
-      isCompleted: appointment.isCompleted,
-      user: appointment.user,
-      createdAt: appointment.createdAt,
-      services
-    }
+    const refactoredAppointment = this.refactorAppointmentInfo(appointment)
     return refactoredAppointment
   }
 
@@ -95,5 +87,20 @@ export class AppointmentService {
     // return a complete appointment with user, appointment data and services
     const completeAppointment = await this.getOne(appointment.id)
     return completeAppointment
+  }
+
+  private refactorAppointmentInfo (appointment: AppointmentExtended): RefactoredAppointment {
+    const services = appointment.AppointmetServices.map((appSer) => appSer.service)
+    const refactoredAppointment: Appointment & { user: User, services: Service[] } = {
+      id: appointment.id,
+      date: appointment.date,
+      hour: appointment.hour,
+      userId: appointment.userId,
+      isCompleted: appointment.isCompleted,
+      user: appointment.user,
+      createdAt: appointment.createdAt,
+      services
+    }
+    return refactoredAppointment
   }
 }

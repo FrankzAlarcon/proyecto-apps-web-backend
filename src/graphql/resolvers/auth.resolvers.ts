@@ -1,3 +1,4 @@
+import { checkRequestOwnData } from './../validator.handler'
 import { CompleteUser, CreateCompleteAuthDto, Login, SignedToken } from './../../../types/auth.d'
 import { ID, JwtContext } from '../../../types'
 import { AuthService } from '../../services/auth.service'
@@ -6,6 +7,7 @@ import { Request } from 'express'
 import { Auth } from '@prisma/client'
 import { checkRoles, schemaValidation, verifyJWT } from '../validator.handler'
 import { CreateAuthDto } from '../../dtos/auth.dto'
+import { GetById } from '../../dtos/service.dto'
 
 const authService = new AuthService()
 
@@ -20,6 +22,8 @@ export const getAuths = async (_: unknown, __: unknown, context: JwtContext): Pr
 export const getAuth = async (_: unknown, { id }: ID, context: JwtContext): Promise<Auth> => {
   const { payload } = await verifyJWT(context)
   checkRoles(payload, 'ADMIN', 'CUSTOMER')
+  checkRequestOwnData(payload, id)
+  schemaValidation(GetById, id)
 
   const auth = await authService.getOne(Number(id))
   return auth

@@ -28,3 +28,11 @@ export const verifyJWT = async (context: JwtContext): Promise<{ payload: Payload
   }
   return { payload }
 }
+
+export const checkRequestOwnData = (payload: PayloadToken, id: number): void => {
+  if (payload.role !== 'ADMIN') {
+    if (payload.sub !== Number(id)) {
+      throw boom.unauthorized('This action is prohibited for you')
+    }
+  }
+}
