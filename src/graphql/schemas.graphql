@@ -34,7 +34,7 @@ type Mutation {
   register(data: CreateAuthDto!): String!
   login(email: String!, password: String!): AuthResponse
   requestRecoveryPassword(email: String!): Message!
-  updatePassword(token: String!,password: RecoveryPassword!): Boolean!
+  updatePassword(token: String!,data: RecoveryPassword!): Boolean!
 
 
   # Services
@@ -46,7 +46,7 @@ type Mutation {
   addAppointment(data: CreateAppointmentDto!): Appointment!
 }
 
-type RecoveryPassword {
+input RecoveryPassword {
   password: String
 }
 

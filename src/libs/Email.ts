@@ -24,7 +24,6 @@ export class EmailService {
 
   async sendRecoveryPassword (user: AuthUser): Promise<boolean> {
     const { email, token, user: { name } } = user
-
     if (!token || !email || !name) {
       return false
     }
@@ -40,7 +39,7 @@ export class EmailService {
       text: 'Reestablece tu contraseña en Barbershop',
       html: `<p>Hola: ${name}. Has solicitado reestablecer tu contraseña.</p>
       <p>Sigue el siguiente enlace para crear una nueva contraseña</p>
-      <a href="${config.frontendUrl}/src/views/change-password.html?token=${token}" target="_blank"/>
+      <a href="${config.frontendUrl}/src/views/change-password.html?token=${token}" target="_blank">
         Reestablecer contraseña
       </a>
       <p>Si tu no solicitaste el cambio de contraseña puedes ignorar este mensaje</p>`
