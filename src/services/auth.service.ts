@@ -7,14 +7,19 @@ import { UserService } from './user.service'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
+import { generateToken } from '../libs'
+import { Message } from '../../types'
+import { EmailService } from '../libs/Email'
 
 export class AuthService {
   private readonly prisma
   private readonly userService
+  private readonly emailService
 
   constructor () {
     this.prisma = new PrismaClient()
     this.userService = new UserService()
+    this.emailService = new EmailService()
   }
 
   async getAll (): Promise<Auth[]> {
@@ -94,5 +99,58 @@ export class AuthService {
 
     // return user
     return auth
+  }
+
+  async validateToken (token: string): Promise<boolean> {
+    const user = await this.prisma.auth.findFirst({ where: { token } })
+    if (!user) {
+      return false
+    }
+    return true
+  }
+
+  async requestRecoveryPassword (email: string): Promise<Message> {
+    const user = await this.prisma.auth.findFirst({ where: { email } })
+    if (!user) {
+      throw boom.notFound('User not found')
+    }
+    const token = generateToken()
+
+    const userWithToken = await this.prisma.auth.update({
+      where: { id: user.id },
+      data: { token },
+      include: { user: true }
+    })
+
+    // Enviar emails con el link para recovery password
+    const response = await this.emailService.sendRecoveryPassword(userWithToken)
+
+    if (!response) {
+      throw boom.badRequest('Something went wrong')
+    }
+
+    return {
+      message: 'Token generated successfully'
+    }
+  }
+
+  async updatePassword (token: string, data: { password: string }): Promise<boolean> {
+    const user = await this.prisma.auth.findFirst({ where: { token } })
+    if (!user) {
+      throw boom.notFound('User not found')
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10)
+
+    const updatedUser = await this.prisma.auth.update({
+      where: { id: user.id },
+      data: { password: hashedPassword, token: '' }
+    })
+
+    if (!updatedUser) {
+      return false
+    }
+
+    return true
   }
 }

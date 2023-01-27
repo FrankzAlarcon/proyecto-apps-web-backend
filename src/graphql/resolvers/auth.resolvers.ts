@@ -1,6 +1,6 @@
 import { checkRequestOwnData } from './../validator.handler'
 import { CompleteUser, CreateCompleteAuthDto, Login, SignedToken } from './../../../types/auth.d'
-import { ID, JwtContext } from '../../../types'
+import { ID, JwtContext, Message, RecoveryPassword } from '../../../types'
 import { AuthService } from '../../services/auth.service'
 import { PassportContext } from 'graphql-passport'
 import { Request } from 'express'
@@ -42,6 +42,14 @@ export const createAuth = async (
   return auth
 }
 
+export const register = async (_: unknown, { data }: { data: CreateCompleteAuthDto }): Promise<string> => {
+  schemaValidation(CreateAuthDto, data)
+
+  await authService.create(data)
+
+  return 'User created successfully'
+}
+
 export const login = async (
   _: unknown,
   { email, password }: Login,
@@ -50,4 +58,19 @@ export const login = async (
   const { user } = await context.authenticate('graphql-local', { email, password })
   // await context.login(user)
   return await authService.signToken(user as CompleteUser)
+}
+
+export const validateResetToken = async (_: unknown, { token }: { token: string }): Promise<boolean> => {
+  const response = await authService.validateToken(token)
+  return response
+}
+
+export const requestRecoveryPassword = async (_: unknown, { email }: { email: string }): Promise<Message> => {
+  const response = await authService.requestRecoveryPassword(email)
+  return response
+}
+
+export const updatePassword = async (_: unknown, { token, data }: RecoveryPassword): Promise<boolean> => {
+  const response = await authService.updatePassword(token, data)
+  return response
 }

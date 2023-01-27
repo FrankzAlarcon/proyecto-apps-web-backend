@@ -1,5 +1,14 @@
 import { createAppointment, getAppointment, getAppointments, getAppointmentsByUser } from './appointment.resolvers'
-import { getAuth, getAuths, createAuth, login } from './auth.resolvers'
+import {
+  getAuth,
+  getAuths,
+  createAuth,
+  login,
+  register,
+  requestRecoveryPassword,
+  updatePassword,
+  validateResetToken
+} from './auth.resolvers'
 import { createService, removeService, updateService, getService, getServices } from './service.resolvers'
 import { createUser, getUser, getUsers, removeUser, updateUser } from './user.resolvers'
 
@@ -11,6 +20,7 @@ export const resolvers = {
     // Auth
     auth: getAuth,
     allAuths: getAuths,
+    validateResetToken,
     // Services
     service: getService,
     allServices: getServices,
@@ -26,7 +36,10 @@ export const resolvers = {
     deleteUser: removeUser,
     // Auth
     addAuth: createAuth,
+    register,
     login,
+    requestRecoveryPassword,
+    updatePassword,
     // Services
     addService: createService,
     updateService,

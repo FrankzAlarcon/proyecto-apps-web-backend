@@ -10,7 +10,8 @@ type Query {
 
   # Auth
   auth(id: ID!): Auth
-  allAuths: [Auth!]!
+  allAuths: [Auth!]!  
+  validateResetToken(token: String): Boolean!
 
   # Services
   service(id: ID!): Service
@@ -30,7 +31,11 @@ type Mutation {
 
   #Auth
   addAuth(data: CreateAuthDto!): Auth!
+  register(data: CreateAuthDto!): String!
   login(email: String!, password: String!): AuthResponse
+  requestRecoveryPassword(email: String!): Message!
+  updatePassword(token: String!,password: RecoveryPassword!): Boolean!
+
 
   # Services
   addService(data: CreateServiceDto!): Service!
@@ -39,6 +44,14 @@ type Mutation {
 
   # Appointments
   addAppointment(data: CreateAppointmentDto!): Appointment!
+}
+
+type RecoveryPassword {
+  password: String
+}
+
+type Message {
+  message: String!
 }
 
 type User {

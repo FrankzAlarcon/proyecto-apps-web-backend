@@ -7,3 +7,16 @@ export interface ID {
 }
 
 export type JwtContext = PassportContext<JwtPayload, { session: boolean }, Request>
+
+export interface Message {
+  message: string
+}
+
+interface NewPassword {
+  password: string
+}
+
+export interface RecoveryPassword {
+  token: string
+  data: NewPassword
+}
